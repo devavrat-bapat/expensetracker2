@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Form</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #e0f7fa, #ffffff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h2 {
+            text-align: center;
+            color: #00796b;
+            margin-bottom: 20px;
+        }
+        form {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 15px;
+            display: block;
+            color: #004d40;
+        }
+        input[type="date"], input[type="number"], select, textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #009688;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+            border-color: #00796b;
+            outline: none;
+        }
+        textarea {
+            height: 60px;
+            resize: none;
+        }
+        button {
+            background-color: #00796b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #004d40;
+        }
+        @media (max-width: 600px) {
+            form {
+                width: 90%; /* Allow more width on smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h2>Transaction Form</h2>
+
+<form id="transactionForm">
+    <label for="date">Transaction Date:</label>
+    <input type="date" id="date" name="date" required>
+
+    <label for="purpose">Purpose (Category Level 1):</label>
+    <select id="purpose" name="purpose" required>
+        <option value="" disabled selected>Select a purpose</option>
+        <option value="Food">Food</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Housing">Housing</option>
+        <option value="Personal Care">Personal Care</option>
+        <option value="Transport">Transport</option>
+        <option value="Trip">Trip</option>
+        <option value="Misc">Misc</option>
+    </select>
+
+    <div class="options hidden" id="dynamicOptions">
+        <label for="subcategory">Select a Subcategory:</label>
+        <select id="subcategory" name="subcategory" required>
+            <!-- Options will be populated here based on selection -->
+        </select>
+    </div>
+
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" name="amount" required min="0" step="0.01">
+
+    <label for="paymentMethod">Payment Method:</label>
+    <select id="paymentMethod" name="paymentMethod" required>
+        <option value="" disabled selected>Select a payment method</option>
+        <option value="Chase Credit">Chase Credit</option>
+        <option value="Chase Debit">Chase Debit</option>
+        <option value="Discover Credit">Discover Credit</option>
+        <option value="Charles Schwab">Charles Schwab</option>
+        <option value="Kotak NRE">Kotak NRE</option>
+        <option value="Kotak NRO">Kotak NRO</option>
+        <option value="HDFC">HDFC</option>
+        <option value="Venmo">Venmo</option>
+        <option value="Amazon Credit">Amazon Credit</option>
+        <option value="Bank Transfer">Bank Transfer</option>
+        <option value="Cash">Cash</option>
+        <option value="Zelle">Zelle</option>
+        <option value="PayPal">PayPal</option>
+        <option value="Other">Other</option>
+    </select>
+
+    <label for="notes">Notes:</label>
+    <textarea id="notes" name="notes" placeholder="Add any notes here (optional)"></textarea>
+
+    <label for="geography">Geography:</label>
+    <select id="geography" name="geography">
+        <option value="US" selected>US</option>
+        <option value="India">India</option>
+        <option value="Other">Other</option>
+    </select>
+
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    const purposeSelect = document.getElementById('purpose');
+    const dynamicOptions = document.getElementById('dynamicOptions');
+    const subcategorySelect = document.getElementById('subcategory');
+
+    const optionsMap = {
+        'Food': ['Beverages/Alcohol', 'Dine-In', 'Takeout/Delivery', 'Grocery', 'Other'],
+        'Entertainment': ['Events', 'OTT Subscription', 'Other'],
+        'Housing': ['Electricity', 'Mobile', 'Rent', 'Utilities', 'Wifi', 'Maintenance', 'Other'],
+        'Personal Care': ['Haircut', 'Health & Fitness', 'Sports', 'Shopping', 'Other'],
+        'Transport': ['Car Fuel', 'Car Loan', 'Car Maintenance', 'Car Insurance', 'Tolls/Ezpass', 'Uber/Lyft', 'Other'],
+        'Trip': ['Trip - Hotel', 'Trip - Event', 'Trip - Food', 'Trip - Shopping', 'Trip - Transport', 'Trip - Other'],
+        'Misc': ['Gifts', 'Misc']
+    };
+
+    purposeSelect.addEventListener('change', () => {
+        const selectedPurpose = purposeSelect.value;
+        const options = optionsMap[selectedPurpose];
+
+        // Populate subcategory dropdown
+        subcategorySelect.innerHTML = '';
+        options.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option;
+            opt.textContent = option;
+            subcategorySelect.appendChild(opt);
+        });
+
+        dynamicOptions.classList.remove('hidden');
+    });
+
+    document.getElementById('transactionForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const url = 'https://script.google.com/macros/s/AKfycbxxHvZtBJy_XS-jZqQ7V4te_AMdnY1jM3rW5SjDIuHf7KwooHlsLJ60EgoRFUxKmdct/exec'; // Replace with your Apps Script URL
+        const formData = {
+            date: document.getElementById('date').value,
+            purpose: document.getElementById('purpose').value,
+            subcategory: document.getElementById('subcategory').value,
+            amount: document.getElementById('amount').value,
+            paymentMethod: document.getElementById('paymentMethod').value,
+            notes: document.getElementById('notes').value,
+            geography: document.getElementById('geography').value
+        };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                const jsonResponse = await response.json();
+                alert('Form submitted successfully! Response: ' + JSON.stringify(jsonResponse));
+            } else {
+                alert('Error: ' + response.statusText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred: ' + error.message);
+        }
+    });
+</script>
+
+</body>
+</html>
